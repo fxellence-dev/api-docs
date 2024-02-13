@@ -55,8 +55,8 @@ paths:
               FX Quote Outgoing Wire examples:
                 $ref: '#/components/examples/CreateFxQuoteExample'
       responses:
-        '200':
-          description: Response for create quote API
+        '201':
+          description: Quote request created
           content:
             application/json:
               schema:
