@@ -63,13 +63,13 @@ h6 {
 --------------------------------------------------------------*/
 section {
   overflow: hidden;
-  padding: 10px 0px;
+  padding: 80px 0;
   scroll-margin-top: 90px;
   overflow: clip;
 }
 
 .section-bg {
-  background-color: #dad8d8;
+  background-color: #eee;
 }
 
 .section-header {
@@ -252,13 +252,13 @@ section {
   background: #fff;
   transition: all 0.5s;
   z-index: 997;
-  height: 100px;
+  height: 90px;
   border-bottom: 1px solid #fff;
 }
 
 @media (max-width: 575px) {
   .header {
-    height: 100px;
+    height: 70px;
   }
 }
 
@@ -268,8 +268,8 @@ section {
 }
 
 .header .logo img {
-  max-height: 100px;
-  margin-top: 6px;
+  max-height: 80px;
+  margin-right: 6px;
 }
 
 .header .logo h1 {
@@ -287,8 +287,8 @@ section {
 .header .btn-book-a-table,
 .header .btn-book-a-table:focus {
   font-size: 16px;
-  color: #ffffff;
-  background: #8431bc;
+  color: #fff;
+  background: #8f35cb;
   padding: 8px 20px;
   margin-left: 30px;
   border-radius: 50px;
@@ -298,7 +298,7 @@ section {
 .header .btn-book-a-table:hover,
 .header .btn-book-a-table:focus:hover {
   color: #fff;
-  background: rgba(2, 13, 34, 0.323);
+  background: rgba(206, 18, 18, 0.8);
 }
 
 /*--------------------------------------------------------------
@@ -1568,7 +1568,7 @@ section {
 }
 
 /*--------------------------------------------------------------
-# Footer  background-color: #1f1f24;
+# Footer
 --------------------------------------------------------------*/
 .footer {
   font-size: 14px;

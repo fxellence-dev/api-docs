@@ -1,0 +1,385 @@
+openapi: 3.0.0
+info:
+  title: FXellence Payment APIs v2.0
+  version: 1.0.0
+  description: "FXellence Payment APIs serve as the integration gateway for online applications and clients, enabling seamless connectivity with the FXellence backend systems to facilitate international payment transfers. Adhering to the highest security standards, all APIs implement OAuth2 protocols to safeguard API resources and data.\n\nAuthentication for API access is managed through two distinct types of tokens:\n\n**User Auth Token:**\n\nAvailability: Accessible to all registered users with FXellence.\n\nPurpose: Facilitates secure access to the FXellence Payment APIs.\n\n**Service Token:**\n\nGeneration: Obtainable by utilizing client credentials, which can be acquired by reaching out to support@fxellence.com.\n\nPurpose: Designed for specialized access and is generated for service-level interactions with the FXellence Payment APIs.\n\nThis dual-token authentication system ensures a robust and secure framework for integrating with FXellence backend systems, offering flexibility and tailored access based on user roles and service requirements."
+  contact:
+    name: Support
+    email: support@fxellence.com
+    url: 'https://www.fxellence.com/support'
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://www.fxellence.com/terms
+servers:
+  - url: 'https://api.fxellence.com'
+    description: Production
+  - description: Development
+    url: 'https://dev-api.fxellence.com'
+paths:
+  /fx_quote/v2/api/currency/active/list:
+    get:
+      summary: Get All Active Currencies
+      tags:
+        - Currencies
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Currency'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      operationId: currency-list
+      description: |-
+        Get list of active currencies with meta data like currency symbol, description, decimal digits along with county code and system parameters like buy and sell flag etc.
+      security:
+        - bearerAuth: []
+  /fx_quote/v2/api/quote/create:
+    post:
+      summary: Request FX Quote
+      tags:
+        - Quote
+      operationId: fxquote-create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFxQuoteRequest'
+            examples:
+              FX Quote Outgoing Wire examples:
+                $ref: '#/components/examples/CreateFxQuoteExample'
+      responses:
+        '200':
+          description: Response for create quote API
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateFxQuoteResponse'
+
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+      description: |-
+        FX Quote API that systematically computes the Foreign Exchange (FX) rate for a specified product and market. This involves input parameters such as sell and buy currency, fixed side, and amount, with the option to include a delivery date. The quote generation process is grounded in real-time market rates, subject to the trading hours of the buy/sell currency. The FXellence spread and fees will be incorporated into the total cost of the quote. Additionally, the system will conduct a single transaction limit check and calculate the expiry date as part of the quote creation process.
+      security:
+        - bearerAuth: []
+
+components:
+  schemas:
+    Currency:
+      description: Currency schema
+      type: object
+      title: Currencies
+      properties:
+        isoCurrencyCode:
+          type: string
+          description: ISO Currency code
+          example: GBP
+        currencyName:
+          type: string
+          description: Currency name
+          example: Pound Sterling
+        currencyNamePlural:
+          type: string
+          description: Currency in plural
+          example: Pounds Sterling
+        currencySymbol:
+          type: string
+          description: Currency symbol
+          example: £
+        rateDecimalPlace:
+          type: number
+          description: no. of decimal places for fx rate for this currency
+          example: 4
+        amountDecimalPlace:
+          type: number
+          description: no. of decimal places for payment amount for this currency
+          example: 2
+        rounding:
+          type: string
+          example: 0
+        isoCountryCode:
+          type: string
+          description: ISO Country Code
+          example: GB
+        countryName:
+          type: string
+          description: Country name
+          example: United Kingdom
+        canBuy:
+          type: boolean
+          description: currency can be bought
+          example: true
+        canSell:
+          type: boolean
+          description: currency can be sold
+          example: true
+        ratesAvailableFlag:
+          type: boolean
+          description: available to show on marketing site for rate widget
+          example: true
+        countryActiveFlag:
+          type: boolean
+          description: County is active and can be show onto UI
+          example: true
+        currencyTopIndex:
+          type: number
+          description: currency can be show in the top place on UI
+          example: 1
+        fxeMarket:
+          type: string
+          description: FXellence market for operations
+          example: UK
+        restrictedCurrency:
+          type: boolean
+          description: currencies can not be shown to UI or available for payments
+          example: false
+        restrictedCountry:
+          type: boolean
+          description: country can not be shown to UI or available for payments
+          example: false
+        restrictionDescription:
+          type: string
+          description: reason for restrictions
+          example:
+        id:
+          type: number
+          description: unique identifier for currency
+          example: 138
+
+    CreateFxQuoteRequest:
+      description: Request body for create fx quote
+      type: object
+      title: FX Quote Request
+      properties:
+        product:
+          enum: [OUTGOING_WIRE, INCOMING_WIRE]
+          description: FXellence product code for outgoing or incoming wire transfers
+        sellCurrency:
+          type: string
+          description: ISO code for buy currency
+        buyCurrency:
+          type: string
+          description: ISO code for sell currency
+        fixedSide:
+          enum: [buy, sell]
+          description: Providing whether to convert into buy currency or sell currency
+        amount:
+          type: number
+          description: Amount to be converted
+        deliveryDate:
+          type: string
+          description: Earliest delivery date in UTC time zone. Format YYYY-MM-DD.
+        uniqueRequestId:
+          type: string
+          description: User-generated idempotence key. Beneficial for request tracking / management.
+        market:
+          enum: [uk]
+          description: FXellence market of operations
+      required:
+        - buyCurrency
+        - sellCurrency
+        - fixedSide
+        - amount
+        - uniqueRequestId
+        - market
+    CreateFxQuoteResponse:
+      description: Response schema for create fx quote
+      type: object
+      title: FX Quote Response
+      properties:
+        id:
+          type: string
+          description: Unique id for quote response
+          example: '14f66f7c-c606-4067-afb7-72dc003d03e5'
+        deliveryDateTime:
+          type: string
+          format: date
+          description: Date & Time when payment will reach to recipients account
+          example: '2024-02-14T14:00:00'
+        creationDateTime:
+          type: string
+          format: date
+          description: Date & Time when quote record is created
+          example: '2024-02-12T17:18:06'
+        sellCurrency:
+          type: string
+          description: sold currency for quote
+          example: GBP
+        buyCurrency:
+          type: string
+          description: buy currency for quote
+          example: EUR
+        vendorSellAmount:
+          type: number
+          description: this is the sell amount when we use vendor's fx rate
+          example: 805.50
+        vendorBuyAmount:
+          type: number
+          description: this the buy amount calculated using vendor fx rate (only populated for incoming wire payments)
+          example: null
+        clientBuyAmount:
+          type: number
+          description: how much amount client will be buying in buy currency
+          example: 1000
+        clientBuyAmountAfterFee:
+          type: number
+          description: this amount will only be populated for incoming transactions to show the buy amount after deducting FXellence fee
+          example: null
+        clientSellAmount:
+          type: number
+          description: amount client will be selling in sell currency
+          example: 813.60
+        fixedSide:
+          enum: [buy, sell]
+          description: whether client wants to buy or sell
+          example: buy
+        clientFxRate:
+          type: number
+          description: after adding the spread to the vendor fx rate
+          example: 0.8136
+        vendorFxRate:
+          type: number
+          description: fx rate provided by vendor
+          example: 0.8055
+        clientFee:
+          type: number
+          description: FXellence payment/transaction fee
+          example: 10.00
+        fxSpreadBPS:
+          type: number
+          description: FXellence spread
+          example: 100
+        quoteExpirySeconds:
+          type: number
+          description: Quote expiry seconds based on the payment amount
+          example: 300
+        quoteExpiryDateTime:
+          type: string
+          format: date
+          description: Quote expiry datetime based on the payment amount
+          example: '2024-02-12T17:35:32'
+        totalCost:
+          type: number
+          description: total cost for the transfer
+          example: 823.60
+        market:
+          type: string
+          description: FXellence operating market
+          example: UK
+        fundingMethod:
+          type: string
+          description: provide how client is going to fund the transfer (not is use for M1R1)
+          example: null
+        product:
+          enum: [OUTGOING_WIRE, INCOMING_WIRE]
+          description: FXellence payment products for sending or receiving money
+          example: OUTGOING_WIRE
+        clientUser:
+          type: string
+          description: User behalf of client making payment
+          example: uHfByGOrzfqLbXJMMUqvOSQgRAGBj6YE@clients
+        uniqueRequestId:
+          type: string
+          description: Unique request id will make sure that the same payment request has not been sent twice.
+          example: 6592bfd3-9289-46a8-a1df-1e70d8389a90
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Fxellence APIs are protected using OAuth2 JWT bearer token, User will have to authenticate using their credentials to get the valid token that will be passed as a Authorization token in all protected APIs. APIs will then call IdP provider token validation endpoint to validate the token and based on the outcome, it will process the request.\n\nTo generate the API token without having to use user credentials, you can use Machine-to-Machine credentials (Please contact support to generate M2M credentials for you).\n\nYou need the following values to generate the auth token:\nclient_id\nclient_secret\naudience\ngrant_type\n\nOnce you have all of these details, you can then submit a POST request to the following URL to get the auth token:\n\nhttps://fxellence.eu.auth0.com/oauth/token\n\nThis will return a Bearer token with expiry time which can be use for all FXellence protected APIs"
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            title: Error
+            type: object
+            description: A standard error object.
+            x-tags:
+              - Common
+            properties:
+              status:
+                type: string
+                description: A code.
+              error:
+                type: string
+            required:
+              - status
+              - error
+    Unauthorized:
+      description: Unauthorized Access
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+    BadRequest:
+      description: The client sent a request with incorrect syntax or missing required parameters.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                description: date and time when request was received by the backend services.
+              status:
+                type: number
+                description: HTTP error code, for example 400
+              error:
+                type: string
+                description: HTTP error message, for example BAD_REQUEST
+              message:
+                type: string
+                description: more detailed level application error messages
+              errors:
+                type: array
+                description: multiple validation errors
+              errorKey:
+                type: string
+                description: error key map error messages to particular validation workflow, for example UNIQUE_REQUEST_ID_ERROR, show that the request id used in the request is not unique.
+              path:
+                type: string
+                description: shows validation error on the field if the information is available
+  examples:
+    CreateFxQuoteExample:
+      value:
+        product: 'OUTGOING_WIRE'
+        buyCurrency: EUR,
+        sellCurrency: GBP,
+        fixedSide: sell,
+        amount: 10000,
+        market: 'UK'
+    BadRequestExample:
+      value:
+        timestamp: 2024-02-12T08:43:38.427+00:00
+        status: 400,
+        error: BAD_REQUEST
+        message: Please provide the unique request id.
+        errors: []
+        errorKey: UNIQUE_REQUEST_ID_ERROR
+        path: /fx_quote/v2/api/quote/create
+security:
+  - bearerAuth: []
+
+tags:
+  - name: fxellence
