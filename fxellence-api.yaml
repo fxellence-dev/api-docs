@@ -164,13 +164,13 @@ components:
       properties:
         product:
           enum: [OUTGOING_WIRE, INCOMING_WIRE]
-          description: FXellence product code for outgoing or incoming wire transfers
+          description: FXellence product code for different wire transfers
         sellCurrency:
           type: string
-          description: ISO code for buy currency
+          description: ISO code for sell currency
         buyCurrency:
           type: string
-          description: ISO code for sell currency
+          description: ISO code for buy currency
         fixedSide:
           enum: [buy, sell]
           description: Providing whether to convert into buy currency or sell currency
@@ -179,7 +179,7 @@ components:
           description: Amount to be converted
         deliveryDate:
           type: string
-          description: Earliest delivery date in UTC time zone. Format YYYY-MM-DD.
+          description: '**Optional** - Earliest delivery date in UTC time zone. Format YYYY-MM-DD.'
         uniqueRequestId:
           type: string
           description: User-generated idempotence key. Beneficial for request tracking / management.
