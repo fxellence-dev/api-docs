@@ -73,9 +73,69 @@ paths:
         FX Quote API that systematically computes the Foreign Exchange (FX) rate for a specified product and market. This involves input parameters such as sell and buy currency, fixed side, and amount, with the option to include a delivery date. The quote generation process is grounded in real-time market rates, subject to the trading hours of the buy/sell currency. The FXellence spread and fees will be incorporated into the total cost of the quote. Additionally, the system will conduct a single transaction limit check and calculate the expiry date as part of the quote creation process.
       security:
         - bearerAuth: []
-
+  /fx_quote/v2/api/rate/{isoCurrencyCode}:
+    get:
+      summary: Get Mid-Market Rate
+      tags:
+        - Quote
+      parameters:
+        - name: isoCurrencyCode
+          in: path
+          description: ISO Currency Code
+          required: true
+          example: GBP
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MidMarketRate'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      operationId: mid-market-rates
+      description: |-
+        This endpoint will provide you a FX rate for all of the currencies for given sell currency, for example if you provide GBP as a sell currency then the endpoint will return all of the currencies and their FX rate for GBP.
+      security:
+        - bearerAuth: []
 components:
   schemas:
+    MidMarketRate:
+      description: Mid Market Rate Schema
+      type: object
+      title: Mid Market Rate
+      properties:
+        base_code:
+          type: string
+          description: Sell currency to get FX rate for all other currencies
+          example: GBP
+        result:
+          type: string
+          description: describe the status of the mid market rate fetcher job
+          example: success
+        time_last_update_utc:
+          type: string
+          format: date
+          description: Most recent date and time when FX rate was updated
+          example: Thu, 22 Feb 2024 00:00:01 +0000
+        conversion_rates:
+          type: object
+          description: List of currencies with mid market FX rate
+          properties:
+            AUD:
+              type: number
+              example: 1.927
+            EUR:
+              type: number
+              example: 1.168
+            USD:
+              type: number
+              example: 1.2631
+
     Currency:
       description: Currency schema
       type: object
